@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model AdminUser {
+  id                  String    @id @default(cuid())
+  login               String    @unique
+  passwordHash        String
+  resetToken          String?
+  resetTokenExpiresAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model Vacancy {
+  id               String        @id @default(cuid())
+  slug             String        @unique
+  title            String
+  shortDescription String
+  description      String
+  schedule         String
+  address          String
+  city             String        @default("Ногинск")
+  salary           String
+  imageUrl         String?
+  order            Int           @default(0)
+  published        Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  applications     Application[]
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  vacancyId String?
+  vacancy   Vacancy? @relation(fields: [vacancyId], references: [id], onDelete: SetNull)
+  name      String?
+  phone     String
+  city      String   @default("Ногинск")
+  consent   Boolean  @default(true)
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  key   String  @id
+  value String?
+}
+
+model SitePage {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  content   String
+  updatedAt DateTime @updatedAt
+}

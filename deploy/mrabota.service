@@ -1,0 +1,26 @@
+[Unit]
+Description=mrabota — сайт вакансий (Ногинск)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mrabota
+Group=mrabota
+WorkingDirectory=/var/www/mrabota
+
+# ВАЖНО: standalone-сервер не читает .env самостоятельно
+EnvironmentFile=/var/www/mrabota/.env
+Environment=NODE_ENV=production
+Environment=HOSTNAME=127.0.0.1
+Environment=PORT=3000
+
+ExecStart=/usr/bin/node /var/www/mrabota/.next/standalone/server.js
+
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

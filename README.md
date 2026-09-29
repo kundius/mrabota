@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# mrabota — сайт вакансий (Ногинск)
 
-## Getting Started
+Сайт-листинг вакансий с собственной админкой: публичный список вакансий, страница
+вакансии с формой заявки, приём заявок в базу и на e-mail, SEO и Яндекс.Метрика.
 
-First, run the development server:
+## Стек
+
+- Next.js 16 (App Router, Turbopack) + React 19 + TypeScript
+- Tailwind CSS v4
+- Prisma 7 + SQLite (`@prisma/adapter-better-sqlite3`)
+- Аутентификация админки: bcryptjs + JWT-сессия в httpOnly cookie (`jose`)
+- Валидация: zod
+- WYSIWYG-редактор: TipTap
+- Почта: nodemailer (SMTP)
+- Метрика: Яндекс.Метрика с отслеживанием переходов SPA
+
+## Локальная разработка
 
 ```bash
+cp .env.example .env          # задайте SESSION_SECRET: openssl rand -hex 32
+npm install
+npx prisma migrate deploy     # создать схему БД
+npm run db:seed               # настройки и юридические страницы
+npm run admin:password -- --password <пароль> --login admin
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Сайт: http://localhost:3000
+- Админка: http://localhost:3000/admin
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Скрипты
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Скрипт | Назначение |
+| --- | --- |
+| `npm run dev` | Запуск в режиме разработки |
+| `npm run build` | Продакшен-сборка (standalone) |
+| `npm run start` | Запуск собранного приложения (не для standalone на сервере) |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Проверка типов |
+| `npm run db:migrate` | Применение миграций (`prisma migrate deploy`) |
+| `npm run db:seed` | Идемпотентный сид настроек и страниц |
+| `npm run admin:password` | Создание/сброс пароля администратора |
 
-## Learn More
+## Структура
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/app/(site)        публичные страницы: список, вакансия, политики
+src/app/admin         админка: вакансии, заявки, настройки, страницы
+src/app/admin/api     загрузка изображений
+src/lib/actions       server actions (auth, vacancies, applications, settings, pages)
+src/lib               db, auth, mail, settings, slug, session-token
+src/components        UI-компоненты (шапка/подвал, карточка, форма, редактор)
+prisma                схема, миграции, сид
+deploy                systemd/nginx/backup и скрипт деплоя
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Админка
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Вакансии: создание, редактирование, черновик/публикация, порядок вывода.
+- Заявки: просмотр поступивших заявок.
+- Настройки: телефон, e-mail, SMTP, счётчик Метрики.
+- Страницы: тексты политики конфиденциальности и согласия на обработку данных.
 
-## Deploy on Vercel
+## Деплой
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Пошаговая инструкция — [DEPLOY.md](./DEPLOY.md).
